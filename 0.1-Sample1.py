@@ -11,13 +11,7 @@ pos = mc.player.getPos()
 
 print("pos: x:{},y:{},z:{}".format(pos.x, pos.y, pos.z))
 
-# mc.setBlock(9.5, -3, 0.5, 0)
-#
-# for x in range(50):
-#     for y in range(20):
-#         for z in range(50):
-#             mc.setBlock(x, y, -z, 0)
-# print(dir(mc))
+
 MATERIAL_GLASS = 20
 MATERIAL_WOOD = 17
 MATERIAL_AIR = 0
@@ -86,17 +80,6 @@ class House:
         self.y = self.y + 1
         self.build()
 
-
-class WoodHouse(House):
-    def __init__(self, x, y, z, r):
-        super().__init__(x, y, z, r, MATERIAL_WOOD)
-
-
-class GoldHouse(House):
-    def __init__(self, x, y, z, r):
-        super().__init__(x, y, z, r, MATERIAL_GOLD)
-
-
 class Level:
     def __init__(self):
         self.houses = {}
@@ -111,72 +94,56 @@ class Level:
             print(house)
 
     def build_all_houses(self):
-        for house in self.houses:
-            House.build(self.houses[house])
+        for key in self.houses:
+            house = self.houses[key]
+            house.build()
 
     def clear_all_houses(self):
-        for house in self.houses:
-            House.clear(self.houses[house])
+        for key in self.houses:
+            house = self.houses[key]
+            house.clear()
 
     def build_house(self, key):
-        House.build(self.houses[key])
+        house = self.houses[key]
+        house.build()
 
     def clear_house(self, key):
-        House.clear(self.houses[key])
+        house = self.houses[key]
+        house.clear()
 
 
 
 l = Level()
-print(l.houses)
-# l.addhouse(3, 0, 0, 3, MATERIAL_GOLD)
-# l.addhouse(7, 0, 0, 4, MATERIAL_WOOD)
-# l.addhouse(3, 0, 5, 5, MATERIAL_GLASS)
-# l.addhouse(7, 0, 6, 6, MATERIAL_ICE)
-# l.addhouse(14, 0, 0, 7, MATERIAL_DIAMOND)
-# l.info()
-# l.buildAll()
-# l.clearAll()
 
 while True:
     chatEvents = mc.events.pollChatPosts()
     print(chatEvents)
     for chatEvent in chatEvents:
         message = chatEvent.message.split(" ")
-        if message[0] == "build" and message[1] == "all":
-            l.build_all_houses()
+        try:
+            if message[0] == "build" and message[1] == "all":
+                l.build_all_houses()
+                mc.postToChat(f"Все дома построены")
+            elif message[0] == "build":
+                l.add_house(message[1], int(message[2]), int(message[3]), int(message[4]), int(message[5]), int(message[6]))
+                l.build_house(message[1])
+                mc.postToChat(f"Дом {message[1]} построен")
+            elif message[0] == "clear" and message[1] == "all":
+                l.clear_all_houses()
+                mc.postToChat(f"Все дома разрушены")
+            elif message[0] == "clear" and message[1] == "zone":
+                mc.setBlocks(-50, 0, -50, 50, 50, 50, 0)
+                mc.postToChat(f"Территория очищена")
+            elif message[0] == "clear":
+                l.clear_house(message[1])
+                mc.postToChat(f"Дом {message[1]} разрушен")
+        except IndexError:
+            mc.postToChat(f"Неверная команда")
+        except KeyError:
+            mc.postToChat(f"Дома {message[1]} не существует")
 
-        elif message[0] == "build":
-            l.add_house(message[1], int(message[2]), int(message[3]), int(message[4]), int(message[5]), int(message[6]))
-            l.build_house(message[1])
-
-        elif message[0] == "clear" and message[1] == "all":
-            l.clear_all_houses()
-
-        elif message[0] == "clear" and message[1] == "zone":
-            mc.setBlocks(-50, 0, -50, 50, 50, 50, 0)
-
-        elif message[0] == "clear":
-            l.clear_house(message[1])
-
-
-
-
-
-# mc.setBlocks(-50, 0, -50, 50, 50, 50, 0)
 
     time.sleep(1)
 
-# woodhouse = WoodHouse(3, 0, 0, 4)
-# goldhouse = GoldHouse(3, 0, 0, 4)
-# house = House(3, 0, 0, 12, 5)
-#
-# mc.setBlocks(-50, 0, -50, 50, 50, 50, 0)
-
-
-# woodhouse.clear()
-# while True:
-#     time.sleep(1)
-#     woodhouse.up()
-# goldhouse.build()
-# house.increase_size(3)
-# woodhouse.build()
+# сделать обработку ошибок,
+# работа с чатом (искать по слову sand)
